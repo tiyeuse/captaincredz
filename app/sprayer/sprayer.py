@@ -147,6 +147,7 @@ def main():
     plugin_name = local_config.get('plugin')["name"]
     pluginargs = local_config.get('plugin')["args"]
     useragents = local_config.get('plugin')["useragents"]
+    stop_on = local_config.get('stop_on', [])
 
     # 4. Send init_delays to storage process
     resp = send_req(storage_socket, f"init_delays {delay_user} {TIMER_ADDRESS}")
@@ -220,6 +221,10 @@ def main():
                 logger.info(f"[{plugin_name}] {result.upper()} {username}:{password} -- {output}")
                 
                 send_req(storage_socket, f"insert_result {payload}")
+
+                if result in stop_on:
+                    logger.info(f"Stopping on '{result}' according to configuration option stop_on")
+                    break
 
                 send_req(storage_socket, f"ready no {username}")
 
